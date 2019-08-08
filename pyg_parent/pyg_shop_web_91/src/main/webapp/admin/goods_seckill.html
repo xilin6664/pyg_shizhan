@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>商品编辑</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+  
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+	<script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+    
+    <!-- 富文本编辑器 -->
+	<link rel="stylesheet" href="../plugins/kindeditor/themes/default/default.css" />
+	<script charset="utf-8" src="../plugins/kindeditor/kindeditor-min.js"></script>
+	<script charset="utf-8" src="../plugins/kindeditor/lang/zh_CN.js"></script>
+
+
+	<script src="../plugins/angularjs/angular.min.js"></script>
+	<script src="../js/base.js"></script>
+	<script src="../js/service/goodsService.js"></script>
+	<script src="../js/service/goodsSeckillService.js"></script>
+	<script src="../js/service/itemCatService.js"></script>
+	<script src="../js/service/typeTemplateService.js"></script>
+	<script src="../js/service/specificationService.js"></script>
+	<script src="../js/service/uploadService.js"></script>
+	<script src="../js/controller/baseController.js"></script>
+	<script src="../js/controller/goodsController.js"></script>
+	<script src="../js/controller/goodsSeckillController.js"></script>
+
+      
+    
+    
+</head>
+
+<body ng-app="pyg" ng-controller="goodsSeckillController" ng-init="findAll()" class="hold-transition skin-red sidebar-mini" >
+
+            <!-- 正文区域 -->
+            <section class="content">
+
+                <div class="box-body">
+
+                    <!--tab页-->
+                    <div class="nav-tabs-custom">
+
+                        <!--tab头-->
+                        <ul class="nav nav-tabs">                       		
+                            <li class="active">
+                                <a href="#home" data-toggle="tab">商品基本信息</a>                                                        
+                            </li> 
+                              
+                            <li >
+                                <a href="#pic_upload" data-toggle="tab">商品图片</a>                                                        
+                            </li>
+                        </ul>
+                        <!--tab头/-->
+						
+                        <!--tab内容-->
+                        <div class="tab-content">
+
+                            <!--表单内容-->
+                            <div class="tab-pane active" id="home">
+                                <div class="row data-type">    
+
+		                           <div class="col-md-2 title">商品名称</div>
+
+									<div class="col-md-10 data">
+										<table>
+											<tr>
+												<td>
+													<select class="form-control"
+															ng-model="entity.goodsName" ng-options="goods.id as goods.title for goods in goodsList" ></select>
+												</td>
+											</tr>
+										</table>
+									</div>
+
+									<div class="col-md-2 title">商品id</div>
+									<div class="col-md-10 data">
+										<input type="text" class="form-control"  ng-model="ItemsList.goodsId"  placeholder="商品id" value="">
+									</div>
+
+		 							 
+								   <div class="col-md-2 title">标题</div>
+		                           <div class="col-md-10 data">
+		                               <input type="text" class="form-control"  ng-model="ItemsList.title"  placeholder="标题" value="">
+		                           </div>
+		                           
+		                           <div class="col-md-2 title">原价格</div>
+		                           <div class="col-md-10 data">
+		                           	   <div class="input-group">
+			                          	   <span class="input-group-addon">¥</span>
+			                               <input type="text" class="form-control" ng-model="ItemsList.price" placeholder="原价格" value="">
+		                           	   </div>
+		                           </div>
+
+									<div class="col-md-2 title">秒杀价格</div>
+									<div class="col-md-10 data">
+										<div class="input-group">
+											<span class="input-group-addon">¥</span>
+											<input type="text" class="form-control" ng-model="ItemsList.costPrice" placeholder="秒杀价格" value="">
+										</div>
+									</div>
+
+									<div class="col-md-2 title">秒杀数量</div>
+									<div class="col-md-10 data">
+										<input type="text" class="form-control"  ng-model="ItemsList.stockCount"  placeholder="秒杀数量" value="">
+									</div>
+
+									<div class="col-md-2 title">库存数量</div>
+									<div class="col-md-10 data">
+										<input type="text" class="form-control"  ng-model="ItemsList.num"  placeholder="库存数量" value="">
+									</div>
+
+									<div class="col-md-2 title">开始时间</div>
+									<div class="col-md-10 data">
+										<input type="datetime-local" class="form-control"  ng-model="ItemsList.startTime"  placeholder="开始时间" >
+									</div>
+
+									<div class="col-md-2 title">结束时间</div>
+									<div class="col-md-10 data">
+										<input type="datetime-local" class="form-control"  ng-model="ItemsList.endTime"  placeholder="结束时间" >
+									</div>
+
+		                           <div class="col-md-2 title editer">商品描述</div>
+                                   <div class="col-md-10 data editer">
+                                       <textarea name="content" style="width:860px;height:400px;visibility:hidden;"></textarea>
+                                   </div>
+
+                                </div>
+                            </div>
+
+							<!--图片上传-->
+							<div class="tab-pane" id="pic_upload">
+								<div class="row data-type">
+
+
+									<table class="table table-bordered table-striped table-hover dataTable">
+										<thead>
+										<tr>
+											<th class="sorting">图片</th>
+										</thead>
+										<tbody>
+										<tr>
+											<td>
+												<img alt="" src="{{ItemsList.image}}" ng-model="ItemsList.smallPic" width="300px" height="300px">
+											</td>
+										</tr>
+										</tbody>
+									</table>
+
+								</div>
+							</div>
+
+                    </div>
+                 	
+
+				   </div>
+                  <div class="btn-toolbar list-toolbar">
+				      <button class="btn btn-primary" ng-click="save()" ><i class="fa fa-save"></i>保存</button>
+				      <button class="btn btn-default" onclick="window.location.reload()">返回列表</button>
+				  </div>
+			
+            </section>
+            
+
+            <!-- 正文区域 /-->
+<script type="text/javascript">
+
+	// 富文本编辑器
+	var editor;
+	KindEditor.ready(function(K) {
+		editor = K.create('textarea[name="content"]', {
+			allowFileManager : true
+		});
+	});
+
+</script>
+       
+</body>
+
+</html>

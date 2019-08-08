@@ -9,7 +9,7 @@ import java.text.ParseException;
 
 public class SMSTest {
     
-    @Test
+   /* @Test
     public void testSms() throws IOException, ParseException {
         //1.创建httpclient对象，设置请求路径
         HttpClient httpClient = new HttpClient("http://localhost:7788/sms/sendSms");
@@ -24,5 +24,5 @@ public class SMSTest {
         //4.获取结果，打印
         String content = httpClient.getContent();
         System.out.println(content);
-    }
+    }*/
 }
