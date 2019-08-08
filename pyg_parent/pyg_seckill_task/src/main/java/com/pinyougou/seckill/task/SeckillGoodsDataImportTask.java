@@ -20,7 +20,7 @@ public class SeckillGoodsDataImportTask {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    @Scheduled(cron = "0/20 * * * * ?")
+    //@Scheduled(cron = "0/20 * * * * ?")
     public void importSeckillGoodsFromDBToRedis(){
         //1.查询所有审核通过（status=1），剩余库存大于0（stockCount>0），开始时间<= 当前时间 <结束时间
         TbSeckillGoodsExample example = new TbSeckillGoodsExample();

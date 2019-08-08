@@ -42,7 +42,7 @@ public class SeckillCreateOrderThead implements Runnable {
             order.setMoney(goods.getCostPrice());
             order.setSeckillId(goods.getId());//秒杀商品id
             order.setSellerId(goods.getSellerId());
-            order.setStatus("0");//未支付
+            order.setStatus("1");//未支付
             order.setUserId(username);
             // 4.2将秒杀订单保存到redis缓存
             redisTemplate.boundHashOps(TbSeckillOrder.class.getSimpleName()).put(username, order);
