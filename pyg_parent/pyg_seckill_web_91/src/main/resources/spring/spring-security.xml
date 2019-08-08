@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/security
+    http://www.springframework.org/schema/security/spring-security.xsd
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!-- 设置静态资源放行 -->
+    <security:http pattern="/seckill-index.html" security="none"></security:http>
+    <security:http pattern="/seckill-item.html" security="none"></security:http>
+    <security:http pattern="/css/**" security="none"></security:http>
+    <security:http pattern="/img/**" security="none"></security:http>
+    <security:http pattern="/js/**" security="none"></security:http>
+    <security:http pattern="/plugins/**" security="none"></security:http>
+    <!-- 配置拦截的规则 auto-config="使用自带的页面" use-expressions="是否使用spel表达式"，如果使用表达式：hasRole('ROLE_USER') -->
+    <security:http auto-config="true" use-expressions="false"
+                   entry-point-ref="casProcessingFilterEntryPoint">
+        <!-- 加入购物车需要根据是否保存，需要获取登录用户信息，未登录是匿名用户：anonymouUser；登录是登录用户名；必须使用该方式才可以访问用户信息 -->
+        <security:intercept-url pattern="/seckillGoods/findAll" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <security:intercept-url pattern="/seckillGoods/findOne/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <!-- 配置拦截的请求地址，任何请求地址都必须有ROLE_USER的权限 -->
+        <security:intercept-url pattern="/**" access="ROLE_ADMIN" />
+
+        <!-- 关闭跨越请求 ：如果要自定义界面，必须关闭此功能-->
+        <security:csrf disabled="true"/>
+        <!-- 使用了frame需要设置frame策略为同源 -->
+        <!-- custom-filter为自定义过滤器， position 表示将过滤器放在指定的位置上，before表示放在指定位置之前  ，after表示放在指定的位置之后  -->
+        <security:custom-filter ref="casAuthenticationFilter"  position="CAS_FILTER" />
+        <security:custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
+        <security:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
+        <!-- 退出 -->
+    </security:http>
+
+    <!-- CAS入口点 开始 -->
+    <bean id="casProcessingFilterEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
+        <!-- 单点登录服务器登录URL -->
+        <property name="loginUrl" value="http://localhost:9006/cas/login"/>
+        <property name="serviceProperties" ref="serviceProperties"/>
+    </bean>
+    <bean id="serviceProperties" class="org.springframework.security.cas.ServiceProperties">
+        <!--service 配置自身工程的根地址+/login/cas   -->
+        <property name="service" value="http://localhost:8087/login/cas"/>
+    </bean>
+    <!-- CAS入口点 结束 -->
+    <!-- 认证过滤器 开始 -->
+    <bean id="casAuthenticationFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
+        <property name="authenticationManager" ref="authenticationManager"/>
+    </bean>
+    <!-- 认证管理器 -->
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider  ref="casAuthenticationProvider">
+        </security:authentication-provider>
+    </security:authentication-manager>
+    <!-- 认证提供者 -->
+    <bean id="casAuthenticationProvider"     class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+        <property name="authenticationUserDetailsService">
+            <bean class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+                <constructor-arg ref="userDetailsService" />
+            </bean>
+        </property>
+        <property name="serviceProperties" ref="serviceProperties"/>
+        <!-- ticketValidator 为票据验证器 -->
+        <property name="ticketValidator">
+            <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+                <constructor-arg index="0" value="http://localhost:9006/cas"/>
+            </bean>
+        </property>
+        <property name="key" value="an_id_for_this_auth_provider_only"/>
+    </bean>
+    <!-- 认证类 -->
+    <bean id="userDetailsService" class="com.pinyougou.seckill.service.UserDetailServiceImpl"/>
+
+    <!-- 认证过滤器 结束 -->
+    <!-- 单点登出  开始  -->
+    <bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter"/>
+    <bean id="requestSingleLogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+        <constructor-arg value="http://localhost:9006/cas/logout?service=http://localhost:8087"/>
+        <constructor-arg>
+            <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+        </constructor-arg>
+        <property name="filterProcessesUrl" value="/logout/cas"/>
+    </bean>
+</beans>
