@@ -28,7 +28,7 @@ public class OrderManagerTask {
     private TbSeckillGoodsMapper seckillGoodsMapper;
     @Autowired
     private RedisTemplate redisTemplate;
-    @Scheduled(cron = "0/60 * * * * ?")
+    //@Scheduled(cron = "0 0/1 * * * ?")//每分钟执行一次
     public void clearOrder(){
         //1,查询所有未付款的普通订单
         TbOrderExample example = new TbOrderExample();
